@@ -3,9 +3,7 @@
  */
 
 const AWS = require('aws-sdk');
-const elb2 = new AWS.ELBv2({
-  region: 'us-east-1',
-});
+const elb2 = new AWS.ELBv2();
 
 const defs = {
   path: '/ready',

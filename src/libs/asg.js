@@ -3,12 +3,8 @@
  */
 
 const AWS = require('aws-sdk');
-const asg = new AWS.AutoScaling({
-  region: 'us-east-1',
-});
-const ec2 = new AWS.EC2({
-  region: 'us-east-1',
-});
+const asg = new AWS.AutoScaling();
+const ec2 = new AWS.EC2();
 
 
 exports.getGroupOfInstance = function getGroupOfInstance(instanceId) {

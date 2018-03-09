@@ -4,9 +4,7 @@
 
 const { moment } = require('@akshendra/misc');
 const AWS = require('aws-sdk');
-const cw = new AWS.CloudWatch({
-  region: 'us-east-1',
-});
+const cw = new AWS.CloudWatch();
 
 
 function summate(response, stat = 'Sum', period = 60) {

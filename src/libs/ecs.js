@@ -3,9 +3,7 @@
  */
 
 const AWS = require('aws-sdk');
-const ecs = new AWS.ECS({
-  region: 'us-east-1',
-});
+const ecs = new AWS.ECS();
 
 function last(arr, back = 1) {
   return arr[arr.length - back];
