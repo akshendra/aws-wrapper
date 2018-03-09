@@ -1,0 +1,25 @@
+{
+  "name": "@akshendra/aws",
+  "version": "0.0.1",
+  "description": "Wrapping aws-sdk",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akshendra/aws-wrapper.git"
+  },
+  "keywords": [
+    "meta",
+    "aws",
+    "js",
+    "nodejs"
+  ],
+  "author": "Akshendra Pratap Singh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/akshendra/aws-wrapper/issues"
+  },
+  "homepage": "https://github.com/akshendra/aws-wrapper#readme"
+}
