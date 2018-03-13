@@ -2,7 +2,7 @@
  * Helper for cloudwatch
  */
 
-const { moment } = require('@akshendra/misc');
+const { moment } = require('moment');
 const AWS = require('aws-sdk');
 const cw = new AWS.CloudWatch();
 
