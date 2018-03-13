@@ -75,42 +75,44 @@ exports.getService = function getService(serviceName, clusterName, check = true)
 /**
  * Get a service with more info and mapped
  */
-exports.getServiceWithTask = function *getServiceWithTask(serviceName, clusterName, check = true) {
-  const service = yield exports.getService(serviceName, clusterName, check);
-  if (service) {
-    const deployment = service.deployments.filter(dep => dep.status === 'PRIMARY')[0];
-    return ecs.describeTaskDefinition({
-      taskDefinition: last(service.taskDefinition.split('/')),
-    }).promise()
-      .then(res => res.taskDefinition)
-      .then((t) => {
-        return {
-          name: service.serviceName,
-          status: service.status,
-          type: service.launchType,
-          deployment: {
-            desired: deployment.desiredCount,
-            running: deployment.runningCount,
-            pending: deployment.pendingCount,
-            task: deployment.taskDefinition,
+exports.getServiceWithTask = function getServiceWithTask(serviceName, clusterName, check = true) {
+  return exports.getService(serviceName, clusterName, check)
+    .then(service => {
+      if (service) {
+        const deployment = service.deployments.filter(dep => dep.status === 'PRIMARY')[0];
+        return ecs.describeTaskDefinition({
+          taskDefinition: last(service.taskDefinition.split('/')),
+        }).promise()
+          .then(res => res.taskDefinition)
+          .then((t) => {
+            return {
+              name: service.serviceName,
+              status: service.status,
+              type: service.launchType,
+              deployment: {
+                desired: deployment.desiredCount,
+                running: deployment.runningCount,
+                pending: deployment.pendingCount,
+                task: deployment.taskDefinition,
 
-          },
-          desired: service.desiredCount,
-          running: service.runningCount,
-          pending: service.pendingCount,
-          task: {
-            defintionArn: t.taskDefinitionArn,
-            family: t.family,
-            cpu: Number(t.cpu),
-            memory: Number(t.memory),
-          },
-          lb: service.loadBalancers.map(lb => {
-            return last(lb.targetGroupArn.split('/'), 2);
-          }),
-        };
-      });
-  }
-  return service;
+              },
+              desired: service.desiredCount,
+              running: service.runningCount,
+              pending: service.pendingCount,
+              task: {
+                defintionArn: t.taskDefinitionArn,
+                family: t.family,
+                cpu: Number(t.cpu),
+                memory: Number(t.memory),
+              },
+              lb: service.loadBalancers.map(lb => {
+                return last(lb.targetGroupArn.split('/'), 2);
+              }),
+            };
+          });
+      }
+      return service;
+    });
 };
 
 
