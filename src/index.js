@@ -5,6 +5,12 @@ const ecs = require('./libs/ecs');
 const lb = require('./libs/lb');
 const sns = require('./libs/sns');
 
-module.exports = {
-  asg, cw, ecs, lb, sns,
+module.exports = function wrapper(AWS) {
+  return {
+    asg: asg(AWS),
+    cw: cw(AWS),
+    ecs: ecs(AWS),
+    lb: lb(AWS),
+    sns: sns(AWS),
+  };
 };
