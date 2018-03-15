@@ -4,37 +4,59 @@
 
 const { moment } = require('moment');
 
-function summate(response, stat = 'Sum', period = 60) {
+function summate(response, stat = 'Sum', period = 1) {
   const sum = response.Datapoints.reduce((start, dp) => {
     return start + dp[stat];
   }, 0);
   return Math.ceil(sum / period / response.Datapoints.length);
 }
 
+function dim(obj) {
+  return Object.keys(obj).map(key => {
+    return {
+      Name: key,
+      Value: obj[key],
+    };
+  });
+}
+
+
 module.exports = function cloudwatch(AWS) {
   const cw = new AWS.CloudWatch();
 
   return {
-    getCheckAllLess(lb, tg, val) {
+    get(opts) {
+      const { metric, namespace, period, interval, dimensions, stat, unit } = Object.assign(opts, {
+        period: 60,
+        interval: 5,
+        stat: 'Sum',
+        unit: 'Count',
+      });
       const request = {
         EndTime: moment().unix(),
-        MetricName: 'RequestCount',
-        Namespace: 'AWS/ApplicationELB',
-        Period: 60,
-        StartTime: moment().subtract('10', 'minute').unix(),
-        Dimensions: [{
-          Name: 'LoadBalancer', /* required */
-          Value: lb, /* required */
-        }, {
-          Name: 'TargetGroup',
-          Value: tg,
-        }],
+        MetricName: metric,
+        Namespace: namespace,
+        Period: period,
+        StartTime: moment().subtract(interval, 'minute').unix(),
+        Dimensions: dim(dimensions),
         Statistics: [
-          'Sum',
+          stat,
         ],
-        Unit: 'Count',
+        Unit: unit,
       };
-      return cw.getMetricStatistics(request).promise()
+      return cw.getMetricStatistics(request).promise();
+    },
+
+    getCheckAllLess(lb, tg, val) {
+      return this.get({
+        metric: 'RequestCount',
+        namespace: 'AWS/ApplicationELB',
+        interval: '10',
+        dimensions: {
+          LoadBalancer: lb,
+          TargetGroup: tg,
+        },
+      }).promise()
         .then(response => {
           const allLess = response.Datapoints.reduce((start, dp) => {
             const current = Math.ceil(dp.Sum / 60);
@@ -49,28 +71,14 @@ module.exports = function cloudwatch(AWS) {
      * Check rabbit messages
      */
     checkRabbitMessages(val, machine, queue) {
-      const request = {
-        EndTime: moment().unix(),
-        MetricName: 'Total',
-        Namespace: 'EC2/Rabbit',
-        Period: 60,
-        StartTime: moment().subtract('5', 'minute').unix(),
-        Dimensions: [
-          {
-            Name: 'Machine', /* required */
-            Value: machine, /* required */
-          },
-          {
-            Name: 'Queue', /* required */
-            Value: queue, /* required */
-          },
-        ],
-        Statistics: [
-          'Sum',
-        ],
-        Unit: 'Count',
-      };
-      return cw.getMetricStatistics(request).promise()
+      return this.get({
+        metric: 'Total',
+        namespace: 'EC2/Rabbit',
+        dimensions: {
+          Machine: machine,
+          Queue: queue,
+        },
+      })
         .then(response => {
           const allLess = response.Datapoints.reduce((start, dp) => {
             const current = Math.ceil(dp.Sum / 60);
@@ -84,52 +92,25 @@ module.exports = function cloudwatch(AWS) {
      * Return the current connetion
      */
     getRequestCount(lb, tg) {
-      const request = {
-        EndTime: moment().unix(),
-        MetricName: 'RequestCount',
-        Namespace: 'AWS/ApplicationELB',
-        Period: 60,
-        StartTime: moment().subtract('5', 'minute').unix(),
-        Dimensions: [{
-          Name: 'LoadBalancer', /* required */
-          Value: lb, /* required */
-        }, {
-          Name: 'TargetGroup',
-          Value: tg,
-        }],
-        Statistics: [
-          'Sum',
-        ],
-        Unit: 'Count',
-      };
-      return cw.getMetricStatistics(request).promise()
-        .then(response => summate(response, 'Sum', 60));
+      return this.get({
+        metric: 'RequestCount',
+        namespace: 'AWS/ApplicationELB',
+        dimensions: {
+          LoadBalancer: lb,
+          TargetGroup: tg,
+        },
+      }).then(response => summate(response, 'Sum', 60));
     },
 
     getRabbitMessageCount(machine, queue) {
-      const request = {
-        EndTime: moment().unix(),
-        MetricName: 'Total',
-        Namespace: 'EC2/Rabbit',
-        Period: 60,
-        StartTime: moment().subtract('5', 'minute').unix(),
-        Dimensions: [
-          {
-            Name: 'Machine', /* required */
-            Value: machine, /* required */
-          },
-          {
-            Name: 'Queue', /* required */
-            Value: queue, /* required */
-          },
-        ],
-        Statistics: [
-          'Sum',
-        ],
-        Unit: 'Count',
-      };
-      return cw.getMetricStatistics(request).promise()
-        .then(response => summate(response, 'Sum', 60));
+      return this.get({
+        metric: 'Total',
+        namespace: 'EC2/Rabbit',
+        dimensions: {
+          Machine: machine,
+          Queue: queue,
+        },
+      }).then(response => summate(response, 'Sum', 60));
     },
 
 
@@ -137,85 +118,45 @@ module.exports = function cloudwatch(AWS) {
      * Get the memory status of an ecs service
      */
     getMemoryUsageOfService(serviceName, clusterName) {
-      const request = {
-        StartTime: moment().subtract('5', 'minute').unix(),
-        EndTime: moment().unix(),
-        MetricName: 'MemoryUtilization',
-        Namespace: 'AWS/ECS',
-        Period: 60,
-        Dimensions: [
-          {
-            Name: 'ServiceName', /* required */
-            Value: serviceName, /* required */
-          },
-          {
-            Name: 'ClusterName',
-            Value: clusterName,
-          },
-        ],
-        Statistics: [
-          'Average',
-        ],
-        Unit: 'Percent',
-      };
-      return cw.getMetricStatistics(request).promise()
-        .then(response => summate(response, 'Average', 60));
+      return this.get({
+        metric: 'MemoryUtilization',
+        namespace: 'AWS/ECS',
+        dimensions: {
+          ServiceName: serviceName,
+          ClusterName: clusterName,
+        },
+        stat: 'Average',
+        unit: 'Percent',
+      }).then(response => summate(response, 'Average'));
     },
 
     /**
      * Get the cpu status of an ecs service
      */
     getCpuUsageOfService(serviceName, clusterName) {
-      const request = {
-        StartTime: moment().subtract('5', 'minute').unix(),
-        EndTime: moment().unix(),
-        MetricName: 'CPUUtilization',
-        Namespace: 'AWS/ECS',
-        Period: 60,
-        Dimensions: [
-          {
-            Name: 'ServiceName', /* required */
-            Value: serviceName, /* required */
-          },
-          {
-            Name: 'ClusterName',
-            Value: clusterName,
-          },
-        ],
-        Statistics: [
-          'Average',
-        ],
-        Unit: 'Percent',
-      };
-      return cw.getMetricStatistics(request).promise()
-        .then(response => {
-          const sum = response.Datapoints.reduce((start, dp) => {
-            return start + dp.Average;
-          }, 0);
-          return Math.ceil(sum / response.Datapoints.length);
-        });
+      return this.get({
+        metric: 'CPUUtilization',
+        namespace: 'AWS/ECS',
+        dimensions: {
+          ServiceName: serviceName,
+          ClusterName: clusterName,
+        },
+        stat: 'Average',
+        unit: 'Percent',
+      }).then(response => summate(response, 'Average'));
     },
 
     getReservedCpuUsage(cluster) {
-      const request = {
-        StartTime: moment().subtract('20', 'minute').unix(),
-        EndTime: moment().unix(),
-        MetricName: 'CPUReservation',
-        Namespace: 'AWS/ECS',
-        Period: 60,
-        Dimensions: [
-          {
-            Name: 'ClusterName', /* required */
-            Value: cluster, /* required */
-          },
-        ],
-        Statistics: [
-          'Average',
-        ],
-        Unit: 'Percent',
-      };
-      return cw.getMetricStatistics(request).promise()
-        .then(response => summate(response, 'Average', 60));
+      return this.get({
+        interval: 20,
+        metric: 'CPUReservation',
+        namespace: 'AWS/ECS',
+        dimensions: {
+          ClusterName: cluster,
+        },
+        stat: 'Average',
+        unit: 'Percent',
+      }).then(response => summate(response, 'Average', 60));
     },
   };
 };
