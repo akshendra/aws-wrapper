@@ -11,6 +11,19 @@ function summate(response, stat = 'Sum', period = 1) {
   return Math.ceil(sum / period / response.Datapoints.length);
 }
 
+function check(response, val, period = 1) {
+  return response.Datapoints.reduce((start, dp) => {
+    const current = Math.ceil(dp.Sum / period);
+    return {
+      more: start.less && (val > current),
+      less: start.more && (val <= current),
+    };
+  }, {
+    less: true,
+    more: true,
+  });
+}
+
 function dim(obj) {
   return Object.keys(obj).map(key => {
     return {
@@ -47,7 +60,7 @@ module.exports = function cloudwatch(AWS) {
       return cw.getMetricStatistics(request).promise();
     },
 
-    getCheckAllLess(lb, tg, val) {
+    checkRequests(lb, tg, val) {
       return this.get({
         metric: 'RequestCount',
         namespace: 'AWS/ApplicationELB',
@@ -56,36 +69,22 @@ module.exports = function cloudwatch(AWS) {
           LoadBalancer: lb,
           TargetGroup: tg,
         },
-      }).promise()
-        .then(response => {
-          const allLess = response.Datapoints.reduce((start, dp) => {
-            const current = Math.ceil(dp.Sum / 60);
-            return start && (val > current);
-          }, true);
-          return allLess;
-        });
+      }).then(response => check(response, val, 60));
     },
 
 
     /**
      * Check rabbit messages
      */
-    checkRabbitMessages(val, machine, queue) {
+    checkRabbitPublishRate(machine, queue, val) {
       return this.get({
-        metric: 'Total',
+        metric: 'PublishRate',
         namespace: 'EC2/Rabbit',
         dimensions: {
           Machine: machine,
           Queue: queue,
         },
-      })
-        .then(response => {
-          const allLess = response.Datapoints.reduce((start, dp) => {
-            const current = Math.ceil(dp.Sum / 60);
-            return start && (val > current);
-          }, true);
-          return allLess;
-        });
+      }).then(response => check(response, val, 60));
     },
 
     /**
@@ -105,6 +104,17 @@ module.exports = function cloudwatch(AWS) {
     getRabbitMessageCount(machine, queue) {
       return this.get({
         metric: 'Total',
+        namespace: 'EC2/Rabbit',
+        dimensions: {
+          Machine: machine,
+          Queue: queue,
+        },
+      }).then(response => summate(response, 'Sum', 60));
+    },
+
+    getRabbitPublishRate(machine, queue) {
+      return this.get({
+        metric: 'PublishRate',
         namespace: 'EC2/Rabbit',
         dimensions: {
           Machine: machine,
