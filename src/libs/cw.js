@@ -2,7 +2,7 @@
  * Helper for cloudwatch
  */
 
-const { moment } = require('moment');
+const moment = require('moment');
 
 function summate(response, stat = 'Sum', period = 1) {
   const sum = response.Datapoints.reduce((start, dp) => {
