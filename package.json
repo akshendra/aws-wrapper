@@ -23,7 +23,6 @@
   },
   "homepage": "https://github.com/akshendra/aws-wrapper#readme",
   "dependencies": {
-    "aws-sdk": "^2.207.0",
     "moment": "^2.21.0"
   }
 }
