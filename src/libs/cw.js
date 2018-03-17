@@ -15,8 +15,8 @@ function check(response, val, period = 1) {
   return response.Datapoints.reduce((start, dp) => {
     const current = Math.ceil(dp.Sum / period);
     return {
-      more: start.less && (val > current),
-      less: start.more && (val <= current),
+      more: start.more && (val > current),
+      less: start.less && (val <= current),
     };
   }, {
     less: true,
