@@ -84,7 +84,7 @@ module.exports = function cloudwatch(AWS) {
           Machine: machine,
           Queue: queue,
         },
-      }).then(response => check(response, val, 60));
+      }).then(response => check(response, val, 1));
     },
 
     /**
@@ -109,7 +109,7 @@ module.exports = function cloudwatch(AWS) {
           Machine: machine,
           Queue: queue,
         },
-      }).then(response => summate(response, 'Sum', 60));
+      }).then(response => summate(response, 'Sum', 1));
     },
 
     getRabbitPublishRate(machine, queue) {
@@ -120,7 +120,7 @@ module.exports = function cloudwatch(AWS) {
           Machine: machine,
           Queue: queue,
         },
-      }).then(response => summate(response, 'Sum', 60));
+      }).then(response => summate(response, 'Sum', 1));
     },
 
 
