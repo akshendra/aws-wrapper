@@ -39,12 +39,12 @@ module.exports = function cloudwatch(AWS) {
 
   return {
     get(opts) {
-      const { metric, namespace, period, interval, dimensions, stat, unit } = Object.assign(opts, {
+      const { metric, namespace, period, interval, dimensions, stat, unit } = Object.assign({
         period: 60,
         interval: 5,
         stat: 'Sum',
         unit: 'Count',
-      });
+      }, opts);
       const request = {
         EndTime: moment().unix(),
         MetricName: metric,
