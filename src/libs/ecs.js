@@ -349,13 +349,13 @@ async function requiredInstances(c, s, more) {
   if (typeof c !== 'string') {
     cluster = c;
   } else {
-    cluster = await getCluster(cluster);
+    cluster = await getCluster(c);
   }
 
   if (typeof s !== 'string') {
     service = s;
   } else {
-    cluster = await getServiceWithTask(service);
+    cluster = await getServiceWithTask(s);
   }
 
   const extra = more || service.desired;
