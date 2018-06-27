@@ -394,10 +394,11 @@ async function checkStable(clusterName, serviceName, revision) {
     throw new Error('No primary deployment found');
   }
 
-  if (primary.definition.revision !== revision) {
+  const current = primary.definition.revision;
+  if (Number() !== Number(revision)) {
     return {
       success: false,
-      message: `Requried revision ${revision} is not primary yet`,
+      message: `Requried revision ${revision} is not primary yet, current is ${current}`,
     };
   }
 
