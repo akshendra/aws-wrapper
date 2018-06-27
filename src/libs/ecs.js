@@ -62,7 +62,7 @@ const map = bindSchema({
   pending: 'pendingCount',
   running: 'runningCount',
   events: ['events', (data) => data.slice(0, 10)],
-}, false);
+});
 
 const taskMap = bindSchema({
   containerDefinitions: ['containerDefinitions'],
@@ -79,7 +79,7 @@ const taskMap = bindSchema({
     key: 'memory',
     apply: Number,
   },
-}, false);
+});
 
 const clusterMap = bindSchema({
   arn: 'clusterArn',
@@ -91,7 +91,7 @@ const clusterMap = bindSchema({
     running: 'runningTasksCount',
     pending: 'pendingTasksCount',
   },
-}, false);
+});
 
 const instanceMap = bindSchema({
   connected: 'agentConnected',
@@ -124,7 +124,7 @@ const instanceMap = bindSchema({
       }, {});
     },
   },
-}, false);
+});
 
 
 async function getService(clusterName, serviceName, check = true) {
