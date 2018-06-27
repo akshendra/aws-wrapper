@@ -306,3 +306,49 @@ exports.remove = function remove(serviceName, cluster = 'prod') {
   };
   return ecs.deleteService(request).promise();
 };
+
+
+exports.checkResources = async function checkResources(c, s, more) {
+  let service, cluster;
+  if (typeof c !== 'string') {
+    cluster = c;
+  } else {
+    cluster = await exports.getCluster(cluster);
+  }
+
+  if (typeof s !== 'string') {
+    service = s;
+  } else {
+    cluster = await exports.getServiceWithTask(service);
+  }
+
+  const extra = more || service.desired;
+
+  const canStart = cluster.instances.reduce((start, ins) => {
+    const thisHas = Math.min(
+      Math.floor(ins.remaining.cpu / service.task.cpu),
+      Math.ceil(ins.remaining.memory / service.task.memory)
+    );
+    return start + thisHas;
+  }, 0);
+
+  if (canStart > extra) {
+    return {
+      required: 0,
+    };
+  }
+
+  const moreRequired = extra - canStart;
+  const moreResources = {
+    cpu: service.task.cpu * moreRequired,
+    memory: service.task.memory * moreRequired,
+  };
+  const instance = cluster.instances[0];
+  const required = (Math.max(
+    Math.ceil(moreResources.cpu / instance.total.cpu),
+    Math.ceil(moreResources.memory / instance.total.memory),
+  )) + 1; // get one more
+  return {
+    required,
+  };
+};

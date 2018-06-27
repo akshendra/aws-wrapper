@@ -4,7 +4,7 @@
   "description": "Wrapping aws-sdk",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --no-timeouts test/**/*.spec.js"
   },
   "repository": {
     "type": "git",
@@ -23,7 +23,12 @@
   },
   "homepage": "https://github.com/akshendra/aws-wrapper#readme",
   "dependencies": {
-    "aws-sdk": "^2.207.0",
-    "moment": "^2.21.0"
+    "@akshendra/misc": "github:akshendra/utils#0.0.3",
+    "moment": "^2.21.0",
+    "unzipper": "^0.8.14"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0"
   }
 }
