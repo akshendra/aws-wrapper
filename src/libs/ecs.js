@@ -309,7 +309,7 @@ function listTaskArns(cluster) {
  * Get all tasks in cluster
  */
 async function getTasksInCluster(cluster) {
-  return exports.listTaskArns(cluster)
+  return listTaskArns(cluster)
     .then(arns => {
       return ecs.describeTasks({
         cluster,
@@ -349,13 +349,13 @@ async function requiredInstances(c, s, more) {
   if (typeof c !== 'string') {
     cluster = c;
   } else {
-    cluster = await exports.getCluster(cluster);
+    cluster = await getCluster(cluster);
   }
 
   if (typeof s !== 'string') {
     service = s;
   } else {
-    cluster = await exports.getServiceWithTask(service);
+    cluster = await getServiceWithTask(service);
   }
 
   const extra = more || service.desired;
