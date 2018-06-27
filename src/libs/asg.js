@@ -43,7 +43,7 @@ const map = bindSchema({
 });
 
 
-exports.getGroupOfInstance = function getGroupOfInstance(instanceId) {
+function getGroupOfInstance(instanceId) {
   const params = {
     Filters: [{
       Name: 'resource-id',
@@ -55,14 +55,14 @@ exports.getGroupOfInstance = function getGroupOfInstance(instanceId) {
   };
   return ec2.describeTags(params).promise()
     .then(response => response.Tags[0].Value);
-};
+}
 
 
 /**
  * Get the current number
  * of running instances in an Auto Scaling Group
  */
-exports.getCurrentCount = function getCurrentCount(name) {
+function getCurrentCount(name) {
   return asg.describeAutoScalingGroups({
     AutoScalingGroupNames: [
       name,
@@ -77,10 +77,10 @@ exports.getCurrentCount = function getCurrentCount(name) {
         running: group.Instances.length,
       };
     });
-};
+}
 
 
-exports.get = async function get(name) {
+async function get(name) {
   const response = await asg.describeAutoScalingGroups({
     AutoScalingGroupNames: [
       name,
@@ -94,15 +94,17 @@ exports.get = async function get(name) {
   }
 
   return map(group);
-};
+}
 
 
-/**
- * Scale an Auto Scaling Group
- */
-exports.scale = function scale(name, desired = 1) {
+function scale(name, desired = 1) {
   return asg.updateAutoScalingGroup({
     AutoScalingGroupName: name,
     DesiredCapacity: desired,
   }).promise();
+}
+
+module.exports = {
+  get, scale, getGroupOfInstance,
+  getCurrentCount,
 };

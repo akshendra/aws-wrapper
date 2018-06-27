@@ -22,7 +22,6 @@ describe('ECS', function () {
   it('should get cluster with all the instances', async function () {
     const clusterName = process.env.TEST_ECS_CLUSTER;
     const cluster = await ecs.getCluster(clusterName);
-    console.log(JSON.stringify(cluster, null, 2));
     expect(cluster.name).to.deep.equal(clusterName);
   });
 });
