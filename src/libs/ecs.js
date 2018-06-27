@@ -355,7 +355,7 @@ async function requiredInstances(c, s, more) {
   if (typeof s !== 'string') {
     service = s;
   } else {
-    cluster = await getServiceWithTask(s);
+    service = await getServiceWithTask(s);
   }
 
   const extra = more || service.desired;
@@ -388,7 +388,7 @@ async function requiredInstances(c, s, more) {
 
 async function checkStable(clusterName, serviceName, revision) {
   const service = await getService(clusterName, serviceName);
-  const primary = service.deployments.filter(dep => dep.status === 'PRIMARY');
+  const primary = service.deployments.filter(dep => dep.status === 'PRIMARY')[0];
 
   if (!primary) {
     throw new Error('No primary deployment found');
