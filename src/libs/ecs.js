@@ -395,7 +395,7 @@ async function checkStable(clusterName, serviceName, revision) {
   }
 
   const current = primary.definition.revision;
-  if (Number() !== Number(revision)) {
+  if (Number(current) !== Number(revision)) {
     return {
       success: false,
       message: `Requried revision ${revision} is not primary yet, current is ${current}`,
