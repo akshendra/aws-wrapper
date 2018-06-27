@@ -9,8 +9,8 @@ function getValue(object, key) {
   }, object);
 }
 
-function map(schema, data) {
-  return Object.entries(schema).reduce((start, [toKey, key]) => {
+function map(schema, data, parent) {
+  const mapped = Object.entries(schema).reduce((start, [toKey, key]) => {
     if (typeof key === 'string') {
       start[toKey] = getValue(data, key);
     } else if (Array.isArray(key)) {
@@ -18,6 +18,8 @@ function map(schema, data) {
       const arraySchema = key[1];
       if (!arraySchema) {
         start[toKey] = getValue(data, arrayKeyInObject);
+      } else if (typeof arraySchema === 'function') {
+        start[toKey] = arraySchema(getValue(data, arrayKeyInObject));
       } else {
         start[toKey] = getValue(data, arrayKeyInObject).map(valInArray => map(arraySchema, valInArray));
       }
@@ -37,11 +39,17 @@ function map(schema, data) {
     }
     return start;
   }, {});
+  if (parent === true) {
+    return Object.assign(mapped, {
+      _org: data,
+    });
+  }
+  return mapped;
 }
 
 
-exports.bindSchema = function bindSchema(schema) {
-  return data => map(schema, data);
+exports.bindSchema = function bindSchema(schema, parent = true) {
+  return (data) => map(schema, data, parent);
 };
 
 exports.extractTag = function extractTag(tags) {

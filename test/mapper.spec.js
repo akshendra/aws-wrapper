@@ -57,6 +57,7 @@ describe('Mapper', function () {
     };
     const mapping = bindSchema(schema);
     expect(mapping(data)).to.deep.equal({
+      _org: data,
       arn: 'arn:aws:autoscaling:us-west-2:123456789012:autoScalingGroup:930d940e-891e-4781-a11a-7b0acd480f03:autoScalingGroupName/my-auto-scaling-group',
       name: 'my-auto-scaling-group',
       zones: ['us-west-2c'],
