@@ -360,6 +360,10 @@ async function requiredInstances(c, s, more) {
 
   const extra = more || service.desired;
 
+  if (extra === 0) {
+    return 0;
+  }
+
   const canStart = cluster.instances.reduce((start, ins) => {
     const thisHas = Math.min(
       Math.floor(ins.remaining.cpu - 100 / service.task.cpu),
