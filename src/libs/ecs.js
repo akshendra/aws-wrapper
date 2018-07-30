@@ -5,6 +5,7 @@
 const AWS = require('aws-sdk');
 const ecs = new AWS.ECS();
 const { bindSchema } = require('../helpers/mapper');
+const cwlogs = require('./cwlogs');
 
 function last(arr, back = 1) {
   return arr[arr.length - back];
@@ -185,6 +186,8 @@ async function getTaskDefinition(definition, check = true) {
 }
 
 async function updateImage(definition, container, image, loggroup) {
+  // also create the log group
+  await cwlogs.createLogGroup(loggroup);
   const taskDefinition = (await getTaskDefinition(definition))._org;
   const updated = Object.assign({
   }, taskDefinition, {
