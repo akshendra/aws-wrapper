@@ -192,6 +192,13 @@ async function updateImage(definition, container, image, loggroup) {
       if (cont.name === container) {
         return Object.assign({}, cont, {
           image,
+          logConfiguration: {
+            logDriver: 'awslogs',
+            options: {
+              'awslogs-group': loggroup,
+              'awslogs-region': 'us-east-1',
+            },
+          },
         });
       }
       return cont;
@@ -201,13 +208,6 @@ async function updateImage(definition, container, image, loggroup) {
     status: undefined,
     requiresAttributes: undefined,
     compatibilities: undefined,
-    logConfiguration: {
-      logDriver: 'awslogs',
-      options: {
-        'awslogs-group': loggroup,
-        'awslogs-region': 'us-east-1',
-      },
-    },
   });
   const updatedTask = JSON.parse(JSON.stringify(updated));
   return registerTask(updatedTask);
