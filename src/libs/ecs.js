@@ -72,12 +72,20 @@ const taskMap = bindSchema({
   volumes: 'volumes',
   status: 'status',
   cpu: {
-    key: 'cpu',
-    apply: Number,
+    key: 'containerDefinitions',
+    apply: (arr) => {
+      return arr.reduce((sum, cont) => {
+        return sum + cont.cpu;
+      }, 0);
+    },
   },
   memory: {
-    key: 'memory',
-    apply: Number,
+    key: 'containerDefinitions',
+    apply: (arr) => {
+      return arr.reduce((sum, cont) => {
+        return sum + cont.memory;
+      }, 0);
+    },
   },
 });
 
@@ -362,7 +370,7 @@ async function requiredInstances(c, s, more) {
   if (typeof s !== 'string') {
     service = s;
   } else {
-    service = await getServiceWithTask(s);
+    service = await getServiceWithTask(cluster.name, s);
   }
 
   const extra = more || service.desired;
@@ -373,8 +381,8 @@ async function requiredInstances(c, s, more) {
 
   const canStart = cluster.instances.reduce((start, ins) => {
     const thisHas = Math.min(
-      Math.floor(ins.remaining.cpu - 100 / service.task.cpu),
-      Math.ceil(ins.remaining.memory - 100 / service.task.memory)
+      Math.floor((ins.remaining.cpu - 100) / service.task.cpu),
+      Math.ceil((ins.remaining.memory - 100) / service.task.memory)
     );
     return start + thisHas;
   }, 0);

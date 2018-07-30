@@ -24,4 +24,11 @@ describe('ECS', function () {
     const cluster = await ecs.getCluster(clusterName);
     expect(cluster.name).to.deep.equal(clusterName);
   });
+
+  it('should return requires instances', async function () {
+    const clusterName = process.env.TEST_ECS_CLUSTER;
+    const serviceName = process.env.TEST_ECS_SERVICE;
+    const required = await ecs.requiredInstances(clusterName, serviceName, 2);
+    expect(required).to.be.a('number');
+  });
 });
