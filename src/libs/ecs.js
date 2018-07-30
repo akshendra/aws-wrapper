@@ -176,7 +176,7 @@ async function getTaskDefinition(definition, check = true) {
   return taskMap(task) || null;
 }
 
-async function updateImage(definition, container, image) {
+async function updateImage(definition, container, image, loggroup) {
   const taskDefinition = (await getTaskDefinition(definition))._org;
   const updated = Object.assign({
   }, taskDefinition, {
@@ -193,6 +193,13 @@ async function updateImage(definition, container, image) {
     status: undefined,
     requiresAttributes: undefined,
     compatibilities: undefined,
+    logConfiguration: {
+      logDriver: 'awslogs',
+      options: {
+        'awslogs-group': loggroup,
+        'awslogs-region': 'us-east-1',
+      },
+    },
   });
   const updatedTask = JSON.parse(JSON.stringify(updated));
   return registerTask(updatedTask);
