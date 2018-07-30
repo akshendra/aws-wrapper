@@ -379,8 +379,8 @@ async function requiredInstances(c, s, more) {
   };
   const instance = cluster.instances[0];
   const required = (Math.max(
-    Math.ceil(moreResources.cpu / instance.total.cpu),
-    Math.ceil(moreResources.memory / instance.total.memory),
+    Math.ceil(moreResources.cpu / instance.resources.cpu),
+    Math.ceil(moreResources.memory / instance.resources.memory),
   )) + 1; // get one more
   return required;
 }
