@@ -187,7 +187,10 @@ async function getTaskDefinition(definition, check = true) {
 
 async function updateImage(definition, container, image, loggroup) {
   // also create the log group
-  await cwlogs.createLogGroup(loggroup);
+  const found = await cwlogs.searchLogGroup(loggroup);
+  if (!found) {
+    await cwlogs.createLogGroup(loggroup);
+  }
   const taskDefinition = (await getTaskDefinition(definition))._org;
   const updated = Object.assign({
   }, taskDefinition, {
