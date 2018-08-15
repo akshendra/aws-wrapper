@@ -72,22 +72,8 @@ const taskMap = bindSchema({
   arn: 'taskDefinitionArn',
   volumes: 'volumes',
   status: 'status',
-  cpu: {
-    key: 'containerDefinitions',
-    apply: (arr) => {
-      return arr.reduce((sum, cont) => {
-        return sum + cont.cpu;
-      }, 0);
-    },
-  },
-  memory: {
-    key: 'containerDefinitions',
-    apply: (arr) => {
-      return arr.reduce((sum, cont) => {
-        return sum + cont.memory;
-      }, 0);
-    },
-  },
+  cpu: 'cpu',
+  memory: 'memory',
 });
 
 const clusterMap = bindSchema({
@@ -402,6 +388,7 @@ async function requiredInstances(c, s, more) {
     cpu: service.task.cpu * moreRequired,
     memory: service.task.memory * moreRequired,
   };
+
   const instance = cluster.instances[0];
   const required = (Math.max(
     Math.ceil(moreResources.cpu / instance.resources.cpu),

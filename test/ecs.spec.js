@@ -29,6 +29,7 @@ describe('ECS', function () {
     const clusterName = process.env.TEST_ECS_CLUSTER;
     const serviceName = process.env.TEST_ECS_SERVICE;
     const required = await ecs.requiredInstances(clusterName, serviceName, 2);
+    console.log(required);
     expect(required).to.be.a('number');
   });
 });
