@@ -187,6 +187,7 @@ async function updateImage(definition, container, image, loggroup) {
           logConfiguration: {
             logDriver: 'awslogs',
             options: {
+              'awslogs-stream-prefix': 'node',
               'awslogs-group': loggroup,
               'awslogs-region': 'us-east-1',
             },
@@ -384,6 +385,7 @@ async function requiredInstances(c, s, more) {
   }
 
   const moreRequired = extra - canStart;
+
   const moreResources = {
     cpu: service.task.cpu * moreRequired,
     memory: service.task.memory * moreRequired,
@@ -393,7 +395,7 @@ async function requiredInstances(c, s, more) {
   const required = (Math.max(
     Math.ceil(moreResources.cpu / instance.resources.cpu),
     Math.ceil(moreResources.memory / instance.resources.memory),
-  )) + 1; // get one more
+  ));
   return required;
 }
 
