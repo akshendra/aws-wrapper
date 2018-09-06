@@ -22,3 +22,18 @@ exports.success = function success(jobId) {
   };
   return codepipeline.putJobSuccessResult(params).promise();
 };
+
+exports.approve = function approve({ actionName, token, pipelineName, approved, stageName }) {
+  const params = {
+    actionName,
+    token,
+    result: {
+      status: approved === true ? 'Approved' : 'Rejected',
+      summary: '',
+    },
+    stageName,
+    pipelineName,
+  };
+
+  return codepipeline.putApprovalResult(params).promise();
+};
