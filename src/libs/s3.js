@@ -48,6 +48,28 @@ async function read(bucket, key) {
   return safeJSON(body);
 }
 
+async function write(bucket, key, strData, contentType) {
+  const s3 = getClient();
+  const buffer = Buffer.from(strData);
+  const params = {
+    Bucket: bucket,
+    Key: key,
+    Body: buffer,
+  };
+
+  if (contentType) {
+    params.ContentType = contentType;
+  }
+
+  return s3.putObject(params).promise();
+}
+
+async function writeJSON(bucket, key, obj) {
+  return write(bucket, key, JSON.stringify(obj), 'application/json');
+}
+
 module.exports = {
   read,
+  write,
+  writeJSON,
 };
