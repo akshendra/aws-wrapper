@@ -49,6 +49,7 @@ exports.getRevision = function getRevision(pipelineName, executionId, index = 0)
       const art = response.pipelineExecution.artifactRevisions[index];
       return {
         name: art.name,
+        commitUrl: art.revisionUrl,
         created: art.created,
         commitId: art.revisionId,
       };
