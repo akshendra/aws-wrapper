@@ -38,7 +38,7 @@ exports.approve = function approve({ actionName, token, pipelineName, approved, 
   return codepipeline.putApprovalResult(params).promise();
 };
 
-exports.getRevision = function getRevision({ pipelineName, executionId, index }) {
+exports.getRevision = function getRevision(pipelineName, executionId, index = 0) {
   const params = {
     pipelineExecutionId: executionId,
     pipelineName: pipelineName,
@@ -46,7 +46,7 @@ exports.getRevision = function getRevision({ pipelineName, executionId, index })
 
   return codepipeline.getPipelineExecution(params).promise()
     .then(response => {
-      const art = response.pipelineExecution.artifactRevisions[index || 0];
+      const art = response.pipelineExecution.artifactRevisions[index];
       return {
         name: art.name,
         created: art.created,
