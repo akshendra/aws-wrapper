@@ -37,3 +37,20 @@ exports.approve = function approve({ actionName, token, pipelineName, approved, 
 
   return codepipeline.putApprovalResult(params).promise();
 };
+
+exports.getRevision = function getRevision({ pipelineName, executionId, index }) {
+  const params = {
+    pipelineExecutionId: executionId,
+    pipelineName: pipelineName,
+  };
+
+  return codepipeline.getPipelineExecution(params).promise()
+    .then(response => {
+      const art = response.pipelineExecution.artifactRevisions[index || 0];
+      return {
+        name: art.name,
+        created: art.created,
+        commitId: art.revisionId,
+      };
+    });
+};
