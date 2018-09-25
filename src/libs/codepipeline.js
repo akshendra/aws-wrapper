@@ -55,3 +55,14 @@ exports.getRevision = function getRevision(pipelineName, executionId, index = 0)
       };
     });
 };
+
+exports.getPipeline = function getPipeline(pipelineName) {
+  const params = {
+    name: pipelineName,
+  };
+
+  return codepipeline.getPipeline(params)
+    .promise().then(res => {
+      return res.pipeline;
+    });
+};
