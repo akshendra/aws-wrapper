@@ -199,6 +199,8 @@ async function updateImage(definition, container, image, loggroup) {
     taskDefinitionArn: undefined,
     revision: undefined,
     status: undefined,
+    registeredAt: undefined,
+    registeredBy: undefined,
     requiresAttributes: undefined,
     compatibilities: undefined,
   });
