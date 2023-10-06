@@ -182,18 +182,24 @@ async function updateImage(definition, container, image, loggroup) {
   const updated = Object.assign({
   }, taskDefinition, {
     containerDefinitions: taskDefinition.containerDefinitions.map((cont) => {
-      if (cont.name === container && !family.includes("infra")) {
-        return Object.assign({}, cont, {
-          image,
-          logConfiguration: {
-            logDriver: 'awslogs',
-            options: {
-              'awslogs-stream-prefix': 'node',
-              'awslogs-group': loggroup,
-              'awslogs-region': 'us-east-1',
+      if (cont.name === container) {
+        if (!family.includes("infra")){
+          return Object.assign({}, cont, {
+            image,
+            logConfiguration: {
+              logDriver: 'awslogs',
+              options: {
+                'awslogs-stream-prefix': 'node',
+                'awslogs-group': loggroup,
+                'awslogs-region': 'us-east-1',
+              },
             },
-          },
-        });
+          });
+        } else {
+          return Object.assign({}, cont, {
+            image
+          });
+        }
       }
       return cont;
     }),
